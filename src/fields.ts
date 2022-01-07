@@ -103,7 +103,9 @@ export class FieldFactory {
       repo: context.repo.repo,
       run_id: context.runId,
     });
-    const currentJob = resp?.data.jobs.find(job => job.name === this.jobName);
+    const currentJob = resp?.data.jobs.find(job =>
+      this.isCurrentJobName(job.name),
+    );
     if (currentJob === undefined) {
       process.env.AS_TOOK = this.jobIsNotFound;
       return this.jobIsNotFound;
@@ -138,7 +140,9 @@ export class FieldFactory {
       repo: context.repo.repo,
       run_id: context.runId,
     });
-    const currentJob = resp?.data.jobs.find(job => job.name === this.jobName);
+    const currentJob = resp?.data.jobs.find(job =>
+      this.isCurrentJobName(job.name),
+    );
     if (currentJob === undefined) {
       process.env.AS_JOB = this.jobIsNotFound;
       return this.jobIsNotFound;
@@ -204,6 +208,10 @@ export class FieldFactory {
     const { owner, repo } = context.repo;
     const { sha: ref } = context;
     return await octokit.repos.getCommit({ owner, repo, ref });
+  }
+
+  private isCurrentJobName(name: string): boolean {
+    return name === this.jobName || name.endsWith(` / ${this.jobName}`);
   }
 
   private get jobIsNotFound() {
